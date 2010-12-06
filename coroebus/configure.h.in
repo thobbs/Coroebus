@@ -1,0 +1,17 @@
+#ifndef __COROEBUS_CONFIGURE_H
+#define __COROEBUS_CONFIGURE_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+@DEPRECATED@
+
+#define COROEBUS_VERSION_STRING "@VERSION@"
+#define COROEBUS_VERSION_HEX @PANDORA_HEX_VERSION@
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* __COROEBUS_CONFIGURE_H */
