@@ -84,23 +84,36 @@ int64_t ColumnFamily::get_time()
 }
 
 map<string, string>
-ColumnFamily::get(const string &key, const vector<string> &columns,
-                  const string &column_start, const string &column_finish,
-                  int32_t column_count, bool column_reversed,
-                  ConsistencyLevel::type cl)
+ColumnFamily::get(const string &key, int32_t column_count, ConsistencyLevel::type cl)
+{
+    return get(key, "", "", column_count, false, cl);
+}
+
+map<string, string>
+ColumnFamily::get(const string &key, const vector<string> &columns, ConsistencyLevel::type cl)
+{
+    SlicePredicate *sp = new SlicePredicate();
+    sp->column_names = columns;
+    sp->__isset.column_names = true;
+    return get(key, sp, cl);
+}
+
+map<string, string>
+ColumnFamily::get(const string &key, const string &column_start, const string &column_finish,
+                  int32_t column_count, bool column_reversed, ConsistencyLevel::type cl)
+{
+    SlicePredicate *sp = new SlicePredicate();
+    SliceRange *sr = make_slice_range(column_start, column_finish, column_count, column_reversed);
+    sp->slice_range = *sr;
+    sp->__isset.slice_range = true;
+    return get(key, sp, cl);
+}
+
+map<string, string>
+ColumnFamily::get(const string &key, SlicePredicate *sp, ConsistencyLevel::type cl)
 {
     ColumnParent *cp = new ColumnParent();
     cp->column_family = _column_family;
-
-    SlicePredicate *sp = new SlicePredicate();
-    if (columns.empty()) {
-        SliceRange *sr = make_slice_range(column_start, column_finish, column_count, column_reversed);
-        sp->slice_range = *sr;
-        sp->__isset.slice_range = true;
-    } else {
-        sp->column_names = columns;
-        sp->__isset.column_names = true;
-    }
 
     vector<ColumnOrSuperColumn> results;
     _client->get_slice(results, key, *cp, *sp, cl);
@@ -114,23 +127,40 @@ ColumnFamily::get(const string &key, const vector<string> &columns,
 }
 
 map<string, map<string, string> >
-ColumnFamily::multiget(const vector<string> &keys, const vector<string> &columns,
-                       const string &column_start, const string &column_finish,
-                       int32_t column_count, bool column_reversed,
+ColumnFamily::multiget(const vector<string> &keys, int32_t column_count,
                        ConsistencyLevel::type cl)
+{
+    return multiget(keys, "", "", column_count, false, cl);
+}
+
+map<string, map<string, string> >
+ColumnFamily::multiget(const vector<string> &keys, const vector<string> &columns,
+                       ConsistencyLevel::type cl)
+{
+    SlicePredicate *sp = new SlicePredicate();
+    sp->column_names = columns;
+    sp->__isset.column_names = true;
+    return multiget(keys, sp, cl);
+}
+
+map<string, map<string, string> >
+ColumnFamily::multiget(const vector<string> &keys,
+                       const string &column_start, const string &column_finish,
+                       int32_t column_count, bool column_reversed, ConsistencyLevel::type cl)
+{
+
+    SlicePredicate *sp = new SlicePredicate();
+    SliceRange *sr = make_slice_range(column_start, column_finish, column_count, column_reversed);
+    sp->slice_range = *sr;
+    sp->__isset.slice_range = true;
+    return multiget(keys, sp, cl);
+}
+
+map<string, map<string, string> >
+ColumnFamily::multiget(const vector<string> &keys, SlicePredicate *sp, ConsistencyLevel::type cl)
 {
     ColumnParent *cp = new ColumnParent();
     cp->column_family = _column_family;
-
-    SlicePredicate *sp = new SlicePredicate();
-    if (columns.empty()) {
-        SliceRange *sr = make_slice_range(column_start, column_finish, column_count, column_reversed);
-        sp->slice_range = *sr;
-        sp->__isset.slice_range = true;
-    } else {
-        sp->column_names = columns;
-        sp->__isset.column_names = true;
-    }
 
     map<string, vector<ColumnOrSuperColumn> > results;
     _client->multiget_slice(results, keys, *cp, *sp, cl);
@@ -163,49 +193,78 @@ SliceRange* ColumnFamily::make_slice_range(const string &column_start, const str
     return sr;
 }
 
+int32_t ColumnFamily::get_count(const string &key, ConsistencyLevel::type cl)
+{
+    return get_count(key, "", "", cl);
+}
+
 int32_t ColumnFamily::get_count(const string &key, const vector<string> &columns,
-                                const string &column_start, const string &column_finish,
                                 ConsistencyLevel::type cl)
+{
+    SlicePredicate *sp = new SlicePredicate();
+    sp->column_names = columns;
+    sp->__isset.column_names = true;
+    return get_count(key, sp, cl);
+}
+
+int32_t ColumnFamily::get_count(const string &key, const string &column_start,
+                                const string &column_finish, ConsistencyLevel::type cl)
+{
+    SlicePredicate *sp = new SlicePredicate();
+    SliceRange *sr = make_slice_range(column_start, column_finish, 2147483647);
+    sp->slice_range = *sr;
+    sp->__isset.slice_range = true;
+    return get_count(key, sp, cl);
+}
+
+int32_t ColumnFamily::get_count(const string &key, SlicePredicate *sp, ConsistencyLevel::type cl)
 {
     ColumnParent *cp = new ColumnParent();
     cp->column_family = _column_family;
-
-    SlicePredicate *sp = new SlicePredicate();
-
-    if (columns.empty()) {
-        SliceRange *sr = make_slice_range(column_start, column_finish, 2147483647);
-        sp->slice_range = *sr;
-        sp->__isset.slice_range = true;
-    } else {
-        sp->column_names = columns;
-        sp->__isset.column_names = true;
-    }
-
     return _client->get_count(key, *cp, *sp, cl);
 }
 
 map<string, int32_t>
+ColumnFamily::multiget_count(const vector<string> &keys, ConsistencyLevel::type cl)
+{
+    return multiget_count(keys, "", "", cl);
+}
+
+map<string, int32_t>
 ColumnFamily::multiget_count(const vector<string> &keys, const vector<string> &columns,
-                             const string &column_start, const string &column_finish,
+                             ConsistencyLevel::type cl)
+{
+    SlicePredicate *sp = new SlicePredicate();
+    sp->column_names = columns;
+    sp->__isset.column_names = true;
+    return multiget_count(keys, sp, cl);
+}
+
+map<string, int32_t>
+ColumnFamily::multiget_count(const vector<string> &keys, const string &column_start,
+                             const string &column_finish, ConsistencyLevel::type cl)
+{
+    SlicePredicate *sp = new SlicePredicate();
+    SliceRange *sr = make_slice_range(column_start, column_finish, 2147483647);
+    sp->slice_range = *sr;
+    sp->__isset.slice_range = true;
+    return multiget_count(keys, sp, cl);
+}
+
+map<string, int32_t>
+ColumnFamily::multiget_count(const vector<string> &keys, SlicePredicate *sp,
                              ConsistencyLevel::type cl)
 {
     ColumnParent *cp = new ColumnParent();
     cp->column_family = _column_family;
-
-    SlicePredicate *sp = new SlicePredicate();
-
-    if (columns.empty()) {
-        SliceRange *sr = make_slice_range(column_start, column_finish, 2147483647);
-        sp->slice_range = *sr;
-        sp->__isset.slice_range = true;
-    } else {
-        sp->column_names = columns;
-        sp->__isset.column_names = true;
-    }
-
     map<string, int32_t> results;
     _client->multiget_count(results, keys, *cp, *sp, cl);
     return results;
+}
+
+void ColumnFamily::remove(const string &key, int64_t timestamp, ConsistencyLevel::type cl)
+{
+    return remove(key, vector<string>(), timestamp, cl);
 }
 
 void ColumnFamily::remove(const string &key, const vector<string> &columns, int64_t timestamp,
