@@ -1,0 +1,12 @@
+#ifndef __CASSANDRA_CONFIGURE_H
+#define __CASSANDRA_CONFIGURE_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* __CASSANDRA_CONFIGURE_H */

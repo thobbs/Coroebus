@@ -1,0 +1,18 @@
+# vim:ft=automake
+# included from Top Level Makefile.am
+# All paths should be given relative to the root
+
+if HAVE_LIBGTEST
+check_PROGRAMS += tests/tests
+endif
+
+unit: tests/tests
+	tests/tests
+
+tests_tests_SOURCES = \
+			      tests/connection_test.cpp \
+			      tests/column_family_test.cpp \
+			      tests/main.cpp
+
+tests_tests_LDADD= \
+  ${lib_LTLIBRARIES} ${LTLIBTHRIFT} ${LTLIBGTEST} ${BOOST_LIBS}

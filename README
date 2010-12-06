@@ -1,0 +1,27 @@
+Coroebus
+========
+
+A C++ client library for Apache Cassandra
+
+Installation
+============
+
+    ./config/autorun.sh
+    ./configure
+    make 
+    make install
+
+Running Unit Tests
+==================
+
+The tests require gtest to be installed and Cassandra to be
+running with the default cassandra.yaml.
+
+    make check
+
+Compiling Against Coroebus
+==========================
+
+    g++ file.cc -lcoroebus -lthrift -I/usr/local/include/thfit
+
+Modify the include with the actual location of your Thrift headers.

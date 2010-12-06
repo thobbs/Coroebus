@@ -1,0 +1,26 @@
+# vim:ft=automake
+# included from Top Level Makefile.am
+# All paths should be given relative to the root
+
+lib_LTLIBRARIES+= cassandra/libcassandra.la
+
+EXTRA_DIST+= \
+	     cassandra/configure.h.in
+
+
+nobase_include_HEADERS+= \
+			 cassandra/cassandra_constants.h \
+			 cassandra/Cassandra.h \
+			 cassandra/cassandra_types.h 
+
+cassandra_libcassandra_la_SOURCES= \
+				  cassandra/cassandra_constants.cpp \
+				  cassandra/Cassandra.cpp \
+				  cassandra/cassandra_types.cpp 
+
+cassandra_libcassandra_la_CXXFLAGS= \
+				 ${AM_CXXFLAGS} 
+
+cassandra_libcassandra_la_LIBADD= \
+				  $(LIBTHRIFT) 
+
