@@ -22,8 +22,7 @@ ColumnFamily::ColumnFamily(Connection *connection, const std::string &column_fam
 ColumnFamily::~ColumnFamily() {}
 
 void ColumnFamily::insert(const string &key, const map<string, string> &columns,
-                          int64_t timestamp, int32_t ttl,
-                          ConsistencyLevel::type cl)
+                          int64_t timestamp, int32_t ttl, CL cl)
 {
     ColumnParent *cp = new ColumnParent();
     cp->column_family = _column_family;
@@ -84,13 +83,13 @@ int64_t ColumnFamily::get_time()
 }
 
 map<string, string>
-ColumnFamily::get(const string &key, int32_t column_count, ConsistencyLevel::type cl)
+ColumnFamily::get(const string &key, int32_t column_count, CL cl)
 {
     return get(key, "", "", column_count, false, cl);
 }
 
 map<string, string>
-ColumnFamily::get(const string &key, const vector<string> &columns, ConsistencyLevel::type cl)
+ColumnFamily::get(const string &key, const vector<string> &columns, CL cl)
 {
     SlicePredicate *sp = new SlicePredicate();
     sp->column_names = columns;
@@ -100,7 +99,7 @@ ColumnFamily::get(const string &key, const vector<string> &columns, ConsistencyL
 
 map<string, string>
 ColumnFamily::get(const string &key, const string &column_start, const string &column_finish,
-                  int32_t column_count, bool column_reversed, ConsistencyLevel::type cl)
+                  int32_t column_count, bool column_reversed, CL cl)
 {
     SlicePredicate *sp = new SlicePredicate();
     SliceRange *sr = make_slice_range(column_start, column_finish, column_count, column_reversed);
@@ -110,7 +109,7 @@ ColumnFamily::get(const string &key, const string &column_start, const string &c
 }
 
 map<string, string>
-ColumnFamily::get(const string &key, SlicePredicate *sp, ConsistencyLevel::type cl)
+ColumnFamily::get(const string &key, SlicePredicate *sp, CL cl)
 {
     ColumnParent *cp = new ColumnParent();
     cp->column_family = _column_family;
@@ -128,14 +127,13 @@ ColumnFamily::get(const string &key, SlicePredicate *sp, ConsistencyLevel::type 
 
 map<string, map<string, string> >
 ColumnFamily::multiget(const vector<string> &keys, int32_t column_count,
-                       ConsistencyLevel::type cl)
+                       CL cl)
 {
     return multiget(keys, "", "", column_count, false, cl);
 }
 
 map<string, map<string, string> >
-ColumnFamily::multiget(const vector<string> &keys, const vector<string> &columns,
-                       ConsistencyLevel::type cl)
+ColumnFamily::multiget(const vector<string> &keys, const vector<string> &columns, CL cl)
 {
     SlicePredicate *sp = new SlicePredicate();
     sp->column_names = columns;
@@ -146,7 +144,7 @@ ColumnFamily::multiget(const vector<string> &keys, const vector<string> &columns
 map<string, map<string, string> >
 ColumnFamily::multiget(const vector<string> &keys,
                        const string &column_start, const string &column_finish,
-                       int32_t column_count, bool column_reversed, ConsistencyLevel::type cl)
+                       int32_t column_count, bool column_reversed, CL cl)
 {
 
     SlicePredicate *sp = new SlicePredicate();
@@ -157,7 +155,7 @@ ColumnFamily::multiget(const vector<string> &keys,
 }
 
 map<string, map<string, string> >
-ColumnFamily::multiget(const vector<string> &keys, SlicePredicate *sp, ConsistencyLevel::type cl)
+ColumnFamily::multiget(const vector<string> &keys, SlicePredicate *sp, CL cl)
 {
     ColumnParent *cp = new ColumnParent();
     cp->column_family = _column_family;
@@ -193,13 +191,12 @@ SliceRange* ColumnFamily::make_slice_range(const string &column_start, const str
     return sr;
 }
 
-int32_t ColumnFamily::get_count(const string &key, ConsistencyLevel::type cl)
+int32_t ColumnFamily::get_count(const string &key, CL cl)
 {
     return get_count(key, "", "", cl);
 }
 
-int32_t ColumnFamily::get_count(const string &key, const vector<string> &columns,
-                                ConsistencyLevel::type cl)
+int32_t ColumnFamily::get_count(const string &key, const vector<string> &columns, CL cl)
 {
     SlicePredicate *sp = new SlicePredicate();
     sp->column_names = columns;
@@ -208,7 +205,7 @@ int32_t ColumnFamily::get_count(const string &key, const vector<string> &columns
 }
 
 int32_t ColumnFamily::get_count(const string &key, const string &column_start,
-                                const string &column_finish, ConsistencyLevel::type cl)
+                                const string &column_finish, CL cl)
 {
     SlicePredicate *sp = new SlicePredicate();
     SliceRange *sr = make_slice_range(column_start, column_finish, 2147483647);
@@ -217,7 +214,7 @@ int32_t ColumnFamily::get_count(const string &key, const string &column_start,
     return get_count(key, sp, cl);
 }
 
-int32_t ColumnFamily::get_count(const string &key, SlicePredicate *sp, ConsistencyLevel::type cl)
+int32_t ColumnFamily::get_count(const string &key, SlicePredicate *sp, CL cl)
 {
     ColumnParent *cp = new ColumnParent();
     cp->column_family = _column_family;
@@ -225,14 +222,13 @@ int32_t ColumnFamily::get_count(const string &key, SlicePredicate *sp, Consisten
 }
 
 map<string, int32_t>
-ColumnFamily::multiget_count(const vector<string> &keys, ConsistencyLevel::type cl)
+ColumnFamily::multiget_count(const vector<string> &keys, CL cl)
 {
     return multiget_count(keys, "", "", cl);
 }
 
 map<string, int32_t>
-ColumnFamily::multiget_count(const vector<string> &keys, const vector<string> &columns,
-                             ConsistencyLevel::type cl)
+ColumnFamily::multiget_count(const vector<string> &keys, const vector<string> &columns, CL cl)
 {
     SlicePredicate *sp = new SlicePredicate();
     sp->column_names = columns;
@@ -242,7 +238,7 @@ ColumnFamily::multiget_count(const vector<string> &keys, const vector<string> &c
 
 map<string, int32_t>
 ColumnFamily::multiget_count(const vector<string> &keys, const string &column_start,
-                             const string &column_finish, ConsistencyLevel::type cl)
+                             const string &column_finish, CL cl)
 {
     SlicePredicate *sp = new SlicePredicate();
     SliceRange *sr = make_slice_range(column_start, column_finish, 2147483647);
@@ -253,7 +249,7 @@ ColumnFamily::multiget_count(const vector<string> &keys, const string &column_st
 
 map<string, int32_t>
 ColumnFamily::multiget_count(const vector<string> &keys, SlicePredicate *sp,
-                             ConsistencyLevel::type cl)
+                             CL cl)
 {
     ColumnParent *cp = new ColumnParent();
     cp->column_family = _column_family;
@@ -262,13 +258,12 @@ ColumnFamily::multiget_count(const vector<string> &keys, SlicePredicate *sp,
     return results;
 }
 
-void ColumnFamily::remove(const string &key, int64_t timestamp, ConsistencyLevel::type cl)
+void ColumnFamily::remove(const string &key, int64_t timestamp, CL cl)
 {
     return remove(key, vector<string>(), timestamp, cl);
 }
 
-void ColumnFamily::remove(const string &key, const vector<string> &columns, int64_t timestamp,
-                          ConsistencyLevel::type cl)
+void ColumnFamily::remove(const string &key, const vector<string> &columns, int64_t timestamp, CL cl)
 {
     Deletion * deletion = new Deletion();
     if (!columns.empty()) {
