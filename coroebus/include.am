@@ -8,13 +8,17 @@ EXTRA_DIST+= \
 nobase_include_HEADERS+= \
 			 coroebus/connection.h \
 			 coroebus/column_family.h \
+			 coroebus/standard_column_family.h \
+			 coroebus/super_column_family.h \
 			 coroebus/exception.h
 
 lib_LTLIBRARIES+= coroebus/libcoroebus.la
 coroebus_libcoroebus_la_CXXFLAGS= ${AM_CXXFLAGS}
 coroebus_libcoroebus_la_SOURCES = \
 				       coroebus/connection.cpp \
-				       coroebus/column_family.cpp
+				       coroebus/column_family.cpp \
+				       coroebus/standard_column_family.cpp \
+				       coroebus/super_column_family.cpp
 
 coroebus_libcoroebus_la_DEPENDENCIES= cassandra/libcassandra.la
 coroebus_libcoroebus_la_LIBADD= $(LIBM) cassandra/libcassandra.la

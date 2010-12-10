@@ -15,6 +15,7 @@
 
 #include <coroebus/connection.h>
 #include <coroebus/column_family.h>
+#include <coroebus/standard_column_family.h>
 
 using namespace std;
 using namespace coroebus;
@@ -22,12 +23,12 @@ using namespace boost;
 using namespace org::apache::cassandra;
 
 
-TEST(ColumnFamily, TestEmpty)
+TEST(StandardColumnFamily, TestEmpty)
 {
     Connection * connection = new Connection("Keyspace1", "localhost:9160");
-    ColumnFamily * cf = new ColumnFamily(connection, "Standard1");
+    StandardColumnFamily * cf = new StandardColumnFamily(connection, "Standard1");
 
-    string key = "ColumnFamily.TestEmpty";
+    string key = "StandardColumnFamily.TestEmpty";
     map<string, string> single_result = cf->get(key);
     ASSERT_EQ(single_result.size(), 0);
 
@@ -37,12 +38,12 @@ TEST(ColumnFamily, TestEmpty)
     ASSERT_EQ(results[key].size(), 0);
 }
 
-TEST(ColumnFamily, Get)
+TEST(StandardColumnFamily, Get)
 {
     Connection * connection = new Connection("Keyspace1", "localhost:9160");
-    ColumnFamily * cf = new ColumnFamily(connection, "Standard1");
+    StandardColumnFamily * cf = new StandardColumnFamily(connection, "Standard1");
 
-    string key = "ColumnFamily.TestGet";
+    string key = "StandardColumnFamily.TestGet";
     map<string, string> columns;
     columns.insert(pair<string, string>("1", "val1"));
     columns.insert(pair<string, string>("2", "val2"));
@@ -90,13 +91,13 @@ TEST(ColumnFamily, Get)
     cf->remove(key);
 }
 
-TEST(ColumnFamily, Multiget)
+TEST(StandardColumnFamily, Multiget)
 {
     Connection * connection = new Connection("Keyspace1", "localhost:9160");
-    ColumnFamily * cf = new ColumnFamily(connection, "Standard1");
+    StandardColumnFamily * cf = new StandardColumnFamily(connection, "Standard1");
 
-    string key1 = "ColumnFamily.TestMultiget1";
-    string key2 = "ColumnFamily.TestMultiget2";
+    string key1 = "StandardColumnFamily.TestMultiget1";
+    string key2 = "StandardColumnFamily.TestMultiget2";
 
     map<string, string> columns1;
     columns1.insert(pair<string, string>("1", "val1"));
@@ -144,11 +145,11 @@ TEST(ColumnFamily, Multiget)
     cf->remove(key2);
 }
 
-TEST(ColumnFamily, GetCount)
+TEST(StandardColumnFamily, GetCount)
 {
     Connection * connection = new Connection("Keyspace1", "localhost:9160");
-    ColumnFamily * cf = new ColumnFamily(connection, "Standard1");
-    string key = "ColumnFamily.GetCount";
+    StandardColumnFamily * cf = new StandardColumnFamily(connection, "Standard1");
+    string key = "StandardColumnFamily.GetCount";
 
     map<string, string> columns;
     columns.insert(pair<string, string>("1", "val1"));
@@ -167,13 +168,13 @@ TEST(ColumnFamily, GetCount)
     cf->remove(key);
 }
 
-TEST(ColumnFamily, MultigetCount)
+TEST(StandardColumnFamily, MultigetCount)
 {
     Connection * connection = new Connection("Keyspace1", "localhost:9160");
-    ColumnFamily * cf = new ColumnFamily(connection, "Standard1");
-    string key1 = "ColumnFamily.MultigetCount1";
-    string key2 = "ColumnFamily.MultigetCount2";
-    string key3 = "ColumnFamily.MultigetCount3";
+    StandardColumnFamily * cf = new StandardColumnFamily(connection, "Standard1");
+    string key1 = "StandardColumnFamily.MultigetCount1";
+    string key2 = "StandardColumnFamily.MultigetCount2";
+    string key3 = "StandardColumnFamily.MultigetCount3";
 
     map<string, string> columns;
     columns.insert(pair<string, string>("1", "val1"));
@@ -201,11 +202,11 @@ TEST(ColumnFamily, MultigetCount)
     cf->remove(key3);
 }
 
-TEST(ColumnFamily, Remove)
+TEST(StandardColumnFamily, Remove)
 {
     Connection * connection = new Connection("Keyspace1", "localhost:9160");
-    ColumnFamily * cf = new ColumnFamily(connection, "Standard1");
-    string key = "ColumnFamily.Remove";
+    StandardColumnFamily * cf = new StandardColumnFamily(connection, "Standard1");
+    string key = "StandardColumnFamily.Remove";
 
     map<string, string> columns;
     columns.insert(pair<string, string>("1", "val1"));
