@@ -79,6 +79,7 @@ void SuperColumnFamily::insert(const string &key, const map<string, map<string, 
             column->ttl = ttl;
             col_vector.push_back(*column);
         }
+        temp_super->columns = col_vector;
 
         ColumnOrSuperColumn *cosc = new ColumnOrSuperColumn();
         cosc->super_column = *temp_super;
