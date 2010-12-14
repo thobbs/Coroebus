@@ -130,7 +130,6 @@ public:
         const std::string &subcolumn_finish="",
         CL cl = ONE);
 
-/*
     virtual std::map<std::string, int32_t> multiget_subcolumn_count(
         const std::vector<std::string> &keys,
         const std::string &supercolumn,
@@ -148,7 +147,7 @@ public:
         const std::string &subcolumn_start,
         const std::string &subcolumn_finish="",
         CL cl = ONE);
-*/
+
     virtual void remove(const std::string &key, int64_t timestamp=-1, CL cl = ONE);
 
     virtual void remove(const std::string &key, const std::string &supercolumn,

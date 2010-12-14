@@ -235,6 +235,52 @@ TEST(SuperColumnFamily, GetSubcolumnCount)
     cf->remove(key);
 }
 
+TEST(SuperColumnFamily, MultigetSubcolumnCount)
+{
+    Connection * connection = new Connection("Keyspace1", "localhost:9160");
+    SuperColumnFamily * cf = new SuperColumnFamily(connection, "Super1");
+    string key1 = "SuperColumnFamily.MultigetSubcolumnCount1";
+    string key2 = "SuperColumnFamily.MultigetSubcolumnCount2";
+
+    map<string, map<string, string> > supercolumns;
+    map<string, string> subcolumns;
+    subcolumns["1"] = "val1";
+    subcolumns["2"] = "val2";
+    subcolumns["3"] = "val3";
+    supercolumns["super"] = subcolumns;
+    cf->insert(key1, supercolumns);
+    cf->insert(key2, supercolumns);
+
+    vector<string> keys;
+    keys.push_back(key1);
+    keys.push_back(key2);
+
+    // count the whole supercolumn at once
+    map<string, int32_t> expected;
+    expected[key1] = 3;
+    expected[key2] = 3;
+
+    map<string, int32_t> counts = cf->multiget_subcolumn_count(keys, "super");
+    ASSERT_TRUE(counts == expected);
+
+    // specify a set of column names
+    vector<string> names;
+    names.push_back("1");
+    names.push_back("2");
+    counts = cf->multiget_subcolumn_count(keys, "super", names);
+    expected[key1] = 2;
+    expected[key2] = 2;
+    ASSERT_TRUE(counts == expected);
+
+    // do a slice
+    counts = cf->multiget_subcolumn_count(keys, "super", "1", "2");
+    ASSERT_TRUE(counts == expected);
+
+    // cleanup
+    cf->remove(key1);
+    cf->remove(key2);
+}
+
 TEST(SuperColumnFamily, Remove)
 {
     Connection * connection = new Connection("Keyspace1", "localhost:9160");

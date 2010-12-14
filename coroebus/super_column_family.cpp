@@ -375,6 +375,43 @@ int32_t SuperColumnFamily::get_subcolumn_count(const string &key, const string &
     return _client->get_count(key, *cp, *sp, cl);
 }
 
+map<string, int32_t>
+SuperColumnFamily::multiget_subcolumn_count(const vector<string> &keys, const string &supercolumn, CL cl)
+{
+    return multiget_subcolumn_count(keys, supercolumn, "", "", cl);
+}
+
+map<string, int32_t>
+SuperColumnFamily::multiget_subcolumn_count(const vector<string> &keys, const string &supercolumn,
+                                            const vector<string> &subcolumns, CL cl)
+{
+    ColumnParent *cp = new ColumnParent();
+    cp->column_family = _column_family;
+    cp->super_column = supercolumn;
+    cp->__isset.super_column = true;
+    SlicePredicate *sp = new SlicePredicate();
+    sp->column_names = subcolumns;
+    sp->__isset.column_names = true;
+    map<string, int32_t> results;
+    _client->multiget_count(results, keys, *cp, *sp, cl);
+    return results;
+}
+
+map<string, int32_t>
+SuperColumnFamily::multiget_subcolumn_count(const vector<string> &keys, const string &supercolumn, 
+                                            const string &subcolumn_start, const string &subcolumn_finish,
+                                            CL cl)
+{
+    ColumnParent *cp = new ColumnParent();
+    cp->column_family = _column_family;
+    cp->super_column = supercolumn;
+    cp->__isset.super_column = true;
+    SlicePredicate *sp = make_slice_predicate(subcolumn_start, subcolumn_finish, 2147483647, false);
+    map<string, int32_t> results;
+    _client->multiget_count(results, keys, *cp, *sp, cl);
+    return results;
+}
+
 void SuperColumnFamily::remove(const string &key, int64_t timestamp, CL cl)
 {
     remove(key, "", "", timestamp, cl);
