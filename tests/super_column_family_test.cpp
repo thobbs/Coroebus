@@ -40,8 +40,8 @@ TEST(SuperColumnFamily, SingleSubcolumnInsert)
 
     map<string, map<string, string> > expected;
     map<string, string> subcolumns;
-    subcolumns.insert(pair<string, string>("sub1", "val1"));
-    expected.insert(pair<string, map<string, string> >("1", subcolumns));
+    subcolumns["sub1"] = "val1";
+    expected["1"] = subcolumns;
 
     // get the whole row at once
     map<string, map<string, string> > results = cf->get(key);
@@ -60,12 +60,12 @@ TEST(SuperColumnFamily, SingleSupercolumnInsert)
     string key = "SuperColumnFamily.SingleSupercolumnInsert";
 
     map<string, string> subcolumns;
-    subcolumns.insert(pair<string, string>("sub1", "val1"));
-    subcolumns.insert(pair<string, string>("sub2", "val2"));
+    subcolumns["sub1"] = "val1";
+    subcolumns["sub2"] = "val2";
     cf->insert(key, "1", subcolumns);
 
     map<string, map<string, string> > expected;
-    expected.insert(pair<string, map<string, string> >("1", subcolumns));
+    expected["1"] = subcolumns;
 
     // get the whole row at once
     map<string, map<string, string> > results = cf->get(key);
@@ -84,22 +84,22 @@ TEST(SuperColumnFamily, MultipleSupercolumnInsert)
     string key = "SuperColumnFamily.MultipleSupercolumnInsert";
 
     map<string, string> subcolumns1;
-    subcolumns1.insert(pair<string, string>("sub1", "val1"));
-    subcolumns1.insert(pair<string, string>("sub2", "val2"));
+    subcolumns1["sub1"] = "val1";
+    subcolumns1["sub2"] = "val2";
     map<string, map<string, string> > supercol1;
-    supercol1.insert(pair<string, map<string, string> >("1", subcolumns1));
+    supercol1["1"] = subcolumns1;
     cf->insert(key, supercol1);
 
     map<string, string> subcolumns2;
-    subcolumns2.insert(pair<string, string>("sub3", "val3"));
-    subcolumns2.insert(pair<string, string>("sub4", "val4"));
+    subcolumns2["sub3"] = "val3";
+    subcolumns2["sub4"] = "val4";
     map<string, map<string, string> > supercol2;
-    supercol2.insert(pair<string, map<string, string> >("2", subcolumns2));
+    supercol2["2"] = subcolumns2;
     cf->insert(key, supercol2);
 
     map<string, map<string, string> > expected;
-    expected.insert(pair<string, map<string, string> >("1", subcolumns1));
-    expected.insert(pair<string, map<string, string> >("2", subcolumns2));
+    expected["1"] = subcolumns1;
+    expected["2"] = subcolumns2;
 
     // get the whole row at once
     map<string, map<string, string> > results = cf->get(key);

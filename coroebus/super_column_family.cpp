@@ -47,7 +47,7 @@ void SuperColumnFamily::insert(const string &key, const string &supercolumn,
                           ConsistencyLevel:: type cl)
 {
     map<string, map<string, string> > supercolumns;
-    supercolumns.insert(pair<string, map<string, string> >(supercolumn, subcolumns));
+    supercolumns[supercolumn] = subcolumns;
     return insert(key, supercolumns, timestamp, ttl, cl);
 }
 
@@ -93,10 +93,10 @@ void SuperColumnFamily::insert(const string &key, const map<string, map<string, 
     }
 
     map<string, vector<Mutation> > innerMutMap;
-    innerMutMap.insert(pair<string, vector<Mutation> >(_column_family, mut_list));
+    innerMutMap[_column_family] = mut_list;
 
     map<string, map<string, vector<Mutation> > > mutationMap;
-    mutationMap.insert(pair<string, map<string, vector<Mutation> > >(key, innerMutMap));
+    mutationMap[key] = innerMutMap;
 
     _client->batch_mutate(mutationMap, cl);
 }
@@ -144,9 +144,9 @@ SuperColumnFamily::get(const string &key, SlicePredicate *sp, ConsistencyLevel::
             ++subcol_it)
         {
             Column col = *subcol_it;
-            subcolumns.insert(pair<string, string>(col.name, col.value));
+            subcolumns[col.name] = col.value;
         }
-        supercolumns.insert(pair<string, map<string, string> >(scol.name, subcolumns));
+        supercolumns[scol.name] = subcolumns;
     }
     return supercolumns;
 }
@@ -200,7 +200,7 @@ SuperColumnFamily::get_supercolumn(const string &key, const string &supercolumn,
     for(vector<Column>::iterator it = sc.columns.begin(); it != sc.columns.end(); ++it)
     {
         Column col = *it;
-        subcolumns.insert(pair<string, string>(col.name, col.value));
+        subcolumns[col.name] = col.value;
     }
     return subcolumns;
 }
@@ -259,11 +259,11 @@ SuperColumnFamily::multiget(const vector<string> &keys, SlicePredicate *sp, Cons
                 ++col_it)
             {
                 Column col = (*col_it);
-                subcol_map.insert(pair<string, string>(col.name, col.value));
+                subcol_map[col.name] = col.value;
             }
-            supercol_map.insert(pair<string, map<string, string> >(supercolumn.name, subcol_map));
+            supercol_map[supercolumn.name] = subcol_map;
         }
-        supercolumn_rows.insert(pair<string, map<string, map<string, string> > >(key, supercol_map));
+        supercolumn_rows[key] = supercol_map;
     }
 
     return supercolumn_rows;
@@ -323,9 +323,9 @@ SuperColumnFamily::multiget_supercolumn(const vector<string> &keys,
             ++col_it)
         {
             Column col = (*col_it);
-            subcol_map.insert(pair<string, string>(col.name, col.value));
+            subcol_map[col.name] = col.value;
         }
-        subcolumn_rows.insert(pair<string, map<string, string> >(key, subcol_map));
+        subcolumn_rows[key] = subcol_map;
     }
 
     return subcolumn_rows;
@@ -487,10 +487,10 @@ void SuperColumnFamily::remove(const string &key, Deletion * deletion, int64_t t
     mut_list.push_back(*mut);
 
     map<string, vector<Mutation> > inner_mut_map;
-    inner_mut_map.insert(pair<string, vector<Mutation> >(_column_family, mut_list));
+    inner_mut_map[_column_family] = mut_list;
 
     map<string, map<string, vector<Mutation> > > mutation_map;
-    mutation_map.insert(pair<string, map<string, vector<Mutation> > >(key, inner_mut_map));
+    mutation_map[key] = inner_mut_map;
 
     _client->batch_mutate(mutation_map, cl);
 }

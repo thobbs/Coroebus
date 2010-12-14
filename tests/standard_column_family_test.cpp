@@ -36,8 +36,8 @@ TEST(StandardColumnFamily, Get)
 
     string key = "StandardColumnFamily.TestGet";
     map<string, string> columns;
-    columns.insert(pair<string, string>("1", "val1"));
-    columns.insert(pair<string, string>("2", "val2"));
+    columns["1"] = "val1";
+    columns["2"] = "val2";
     cf->insert(key, columns);
 
     // get the whole row at once
@@ -91,18 +91,18 @@ TEST(StandardColumnFamily, Multiget)
     string key2 = "StandardColumnFamily.TestMultiget2";
 
     map<string, string> columns1;
-    columns1.insert(pair<string, string>("1", "val1"));
-    columns1.insert(pair<string, string>("2", "val2"));
+    columns1["1"] = "val1";
+    columns1["2"] = "val2";
     cf->insert(key1, columns1);
 
     map<string, string> columns2;
-    columns2.insert(pair<string, string>("1", "val1"));
-    columns2.insert(pair<string, string>("2", "val2"));
+    columns2["1"] = "val1";
+    columns2["2"] = "val2";
     cf->insert(key2, columns2);
 
     map<string, map<string, string> > expected;
-    expected.insert(pair<string, map<string, string> >(key1, columns1));
-    expected.insert(pair<string, map<string, string> >(key2, columns2));
+    expected[key1] = columns1;
+    expected[key2] = columns2;
 
     vector<string> keys;
     keys.push_back(key1);
@@ -119,9 +119,9 @@ TEST(StandardColumnFamily, Multiget)
 
     expected = map<string, map<string, string> >();
     map<string, string> expected_columns;
-    expected_columns.insert(pair<string, string>("1", "val1"));
-    expected.insert(pair<string, map<string, string> >(key1, expected_columns));
-    expected.insert(pair<string, map<string, string> >(key2, expected_columns));
+    expected_columns["1"] = "val1";
+    expected[key1] = expected_columns;
+    expected[key2] = expected_columns;
 
     ASSERT_EQ(results.size(), 2);
     ASSERT_TRUE(results == expected);
@@ -143,8 +143,8 @@ TEST(StandardColumnFamily, GetCount)
     string key = "StandardColumnFamily.GetCount";
 
     map<string, string> columns;
-    columns.insert(pair<string, string>("1", "val1"));
-    columns.insert(pair<string, string>("2", "val2"));
+    columns["1"] = "val1";
+    columns["2"] = "val2";
     cf->insert(key, columns);
 
     ASSERT_EQ(cf->get_count(key), 2);
@@ -168,18 +168,19 @@ TEST(StandardColumnFamily, MultigetCount)
     string key3 = "StandardColumnFamily.MultigetCount3";
 
     map<string, string> columns;
-    columns.insert(pair<string, string>("1", "val1"));
-    columns.insert(pair<string, string>("2", "val2"));
+    columns["1"] = "val1";
+    columns["2"] = "val2";
     cf->insert(key1, columns);
     cf->insert(key2, columns);
+
     columns = map<string, string>();
-    columns.insert(pair<string, string>("1", "val1"));
+    columns["1"] = "val1";
     cf->insert(key3, columns);
 
     map<string, int32_t> expected;
-    expected.insert(pair<string, int32_t>(key1, 2));
-    expected.insert(pair<string, int32_t>(key2, 2));
-    expected.insert(pair<string, int32_t>(key3, 1));
+    expected[key1] = 2;
+    expected[key2] = 2;
+    expected[key3] = 1;
 
     vector<string> keys;
     keys.push_back(key1);
@@ -200,8 +201,8 @@ TEST(StandardColumnFamily, Remove)
     string key = "StandardColumnFamily.Remove";
 
     map<string, string> columns;
-    columns.insert(pair<string, string>("1", "val1"));
-    columns.insert(pair<string, string>("2", "val2"));
+    columns["1"] = "val1";
+    columns["2"] = "val2";
     cf->insert(key, columns);
     ASSERT_EQ(cf->get_count(key), 2);
 

@@ -63,27 +63,14 @@ void StandardColumnFamily::insert(const string &key, const map<string, string> &
             mut_list.push_back(*temp_mut);
         }
         map<string, vector<Mutation> > innerMutMap;
-        innerMutMap.insert(pair<string, vector<Mutation> >(_column_family, mut_list));
+        innerMutMap[_column_family] = mut_list;
 
         map<string, map<string, vector<Mutation> > > mutationMap;
-        mutationMap.insert(pair<string, map<string, vector<Mutation> > >(key, innerMutMap));
+        mutationMap[key] = innerMutMap;
 
         _client->batch_mutate(mutationMap, cl);
     }
 }
-
-/*
-int64_t StandardColumnFamily::get_time()
-{
-    time_t rawtime;
-    time(&rawtime);
-    int64_t timestamp(rawtime);
-    timestamp *= 1000000;
-    if (this->_micros == 1000000)
-        this->_micros = 0;
-    return timestamp + _micros++;
-}
-*/
 
 map<string, string>
 StandardColumnFamily::get(const string &key, int32_t column_count, CL cl)
@@ -123,7 +110,7 @@ StandardColumnFamily::get(const string &key, SlicePredicate *sp, CL cl)
     map<string, string> cols;
     for(vector<ColumnOrSuperColumn>::iterator it = results.begin(); it != results.end();++it) {
         Column col = (*it).column;
-        cols.insert(pair<string, string>(col.name, col.value));
+        cols[col.name] = col.value;
     }
     return cols;
 }
@@ -175,9 +162,9 @@ StandardColumnFamily::multiget(const vector<string> &keys, SlicePredicate *sp, C
         for(vector<ColumnOrSuperColumn>::iterator col_it = col_vector.begin(); col_it != col_vector.end(); ++col_it)
         {
             Column col = (*col_it).column;
-            row_columns.insert(pair<string, string>(col.name, col.value));
+            row_columns[col.name] = col.value;
         }
-        result_map.insert(pair<string, map<string, string> >(key, row_columns));
+        result_map[key] = row_columns;
     }
 
     return result_map;
@@ -211,10 +198,10 @@ void StandardColumnFamily::remove(const string &key, const vector<string> &colum
     mut_list.push_back(*mut);
 
     map<string, vector<Mutation> > inner_mut_map;
-    inner_mut_map.insert(pair<string, vector<Mutation> >(_column_family, mut_list));
+    inner_mut_map[_column_family] = mut_list;
 
     map<string, map<string, vector<Mutation> > > mutation_map;
-    mutation_map.insert(pair<string, map<string, vector<Mutation> > >(key, inner_mut_map));
+    mutation_map[key] = inner_mut_map;
 
     _client->batch_mutate(mutation_map, cl);
 }
