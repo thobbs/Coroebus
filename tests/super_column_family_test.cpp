@@ -148,33 +148,35 @@ TEST(SuperColumnFamily, Get)
     cf->remove(key);
 }
 
-/*
 TEST(SuperColumnFamily, Multiget)
 {
     Connection * connection = new Connection("Keyspace1", "localhost:9160");
-    SuperColumnFamily * cf = new SuperColumnFamily(connection, "Standard1");
+    SuperColumnFamily * cf = new SuperColumnFamily(connection, "Super1");
 
     string key1 = "SuperColumnFamily.TestMultiget1";
     string key2 = "SuperColumnFamily.TestMultiget2";
 
-    map<string, string> columns1;
-    columns1.insert(pair<string, string>("1", "val1"));
-    columns1.insert(pair<string, string>("2", "val2"));
-    cf->insert(key1, columns1);
+    map<string, map<string, string> > supers;
+    map<string, string> subcolumns1;
+    subcolumns1["sub1"] = "val1";
+    subcolumns1["sub2"] = "val2";
+    supers["1"] = subcolumns1;
+    map<string, string> subcolumns2;
+    subcolumns2["sub3"] = "val3";
+    subcolumns2["sub4"] = "val4";
+    supers["2"] = subcolumns2;
 
-    map<string, string> columns2;
-    columns2.insert(pair<string, string>("1", "val1"));
-    columns2.insert(pair<string, string>("2", "val2"));
-    cf->insert(key2, columns2);
+    cf->insert(key1, supers);
+    cf->insert(key2, supers);
 
-    map<string, map<string, string> > expected;
-    expected.insert(pair<string, map<string, string> >(key1, columns1));
-    expected.insert(pair<string, map<string, string> >(key2, columns2));
+    map<string, map<string, map<string, string> > > expected;
+    expected[key1] = supers;
+    expected[key2] = supers;
 
     vector<string> keys;
     keys.push_back(key1);
     keys.push_back(key2);
-    map<string, map<string, string> > results;
+    map<string, map<string, map<string, string> > > results;
     results = cf->multiget(keys);
     ASSERT_EQ(results.size(), 2);
     ASSERT_TRUE(results == expected);
@@ -184,17 +186,17 @@ TEST(SuperColumnFamily, Multiget)
     colnames.push_back("1");
     results = cf->multiget(keys, colnames);
 
-    expected = map<string, map<string, string> >();
-    map<string, string> expected_columns;
-    expected_columns.insert(pair<string, string>("1", "val1"));
-    expected.insert(pair<string, map<string, string> >(key1, expected_columns));
-    expected.insert(pair<string, map<string, string> >(key2, expected_columns));
+    expected = map<string, map<string, map<string, string> > >();
+    map<string, map<string, string> > expected_super;
+    expected_super["1"] = subcolumns1;
+    expected[key1] = expected_super;
+    expected[key2] = expected_super;
 
     ASSERT_EQ(results.size(), 2);
     ASSERT_TRUE(results == expected);
 
     // do a slice
-    results = cf->multiget(keys, "1", "", 1);
+    results = cf->multiget(keys, "", "", 1, false);
     ASSERT_EQ(results.size(), 2);
     ASSERT_TRUE(results == expected);
 
@@ -203,81 +205,34 @@ TEST(SuperColumnFamily, Multiget)
     cf->remove(key2);
 }
 
-TEST(SuperColumnFamily, GetCount)
-{
-    Connection * connection = new Connection("Keyspace1", "localhost:9160");
-    SuperColumnFamily * cf = new SuperColumnFamily(connection, "Standard1");
-    string key = "SuperColumnFamily.GetCount";
-
-    map<string, string> columns;
-    columns.insert(pair<string, string>("1", "val1"));
-    columns.insert(pair<string, string>("2", "val2"));
-    cf->insert(key, columns);
-
-    ASSERT_EQ(cf->get_count(key), 2);
-    ASSERT_EQ(cf->get_count(key, "", ""), 2);
-    ASSERT_EQ(cf->get_count(key, "1", "2"), 2);
-
-    vector<string> colnames;
-    colnames.push_back("1");
-    ASSERT_EQ(cf->get_count(key, colnames), 1);
-
-    // cleanup
-    cf->remove(key);
-}
-
-TEST(SuperColumnFamily, MultigetCount)
-{
-    Connection * connection = new Connection("Keyspace1", "localhost:9160");
-    SuperColumnFamily * cf = new SuperColumnFamily(connection, "Standard1");
-    string key1 = "SuperColumnFamily.MultigetCount1";
-    string key2 = "SuperColumnFamily.MultigetCount2";
-    string key3 = "SuperColumnFamily.MultigetCount3";
-
-    map<string, string> columns;
-    columns.insert(pair<string, string>("1", "val1"));
-    columns.insert(pair<string, string>("2", "val2"));
-    cf->insert(key1, columns);
-    cf->insert(key2, columns);
-    columns = map<string, string>();
-    columns.insert(pair<string, string>("1", "val1"));
-    cf->insert(key3, columns);
-
-    map<string, int32_t> expected;
-    expected.insert(pair<string, int32_t>(key1, 2));
-    expected.insert(pair<string, int32_t>(key2, 2));
-    expected.insert(pair<string, int32_t>(key3, 1));
-
-    vector<string> keys;
-    keys.push_back(key1);
-    keys.push_back(key2);
-    keys.push_back(key3);
-    ASSERT_TRUE(cf->multiget_count(keys) == expected);
-
-    // cleaup
-    cf->remove(key1);
-    cf->remove(key2);
-    cf->remove(key3);
-}
 
 TEST(SuperColumnFamily, Remove)
 {
     Connection * connection = new Connection("Keyspace1", "localhost:9160");
-    SuperColumnFamily * cf = new SuperColumnFamily(connection, "Standard1");
+    SuperColumnFamily * cf = new SuperColumnFamily(connection, "Super1");
     string key = "SuperColumnFamily.Remove";
 
-    map<string, string> columns;
-    columns.insert(pair<string, string>("1", "val1"));
-    columns.insert(pair<string, string>("2", "val2"));
-    cf->insert(key, columns);
-    ASSERT_EQ(cf->get_count(key), 2);
-
-    vector<string> column_names;
-    column_names.push_back("1");
-    cf->remove(key, column_names);
+    map<string, map<string, string> > supercolumns;
+    map<string, string> subcolumns;
+    subcolumns["1"] = "val1";
+    subcolumns["2"] = "val2";
+    subcolumns["3"] = "val3";
+    supercolumns["super"] = subcolumns;
+    cf->insert(key, supercolumns);
     ASSERT_EQ(cf->get_count(key), 1);
 
-    cf->remove(key);
+    cf->remove(key, "super", "1");
+    map<string, map<string, string> > result = cf->get(key, "super");
+    subcolumns.erase("1");
+    ASSERT_TRUE(result["super"] == subcolumns);
+
+    vector<string> subcolumn_names;
+    subcolumn_names.push_back("2");
+    cf->remove(key, "super", subcolumn_names);
+    result = cf->get(key, "super");
+    subcolumns.erase("2");
+    ASSERT_TRUE(result["super"] == subcolumns);
+
+    cf->remove(key, "super");
     ASSERT_EQ(cf->get_count(key), 0);
 }
-*/

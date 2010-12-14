@@ -76,7 +76,7 @@ public:
     virtual Subcols get_supercolumn(
         const std::string &key,
         const std::string &supercolumn,
-        const std::string &subcolumn_start="",
+        const std::string &subcolumn_start,
         const std::string &subcolumn_finish="",
         int32_t subcolumn_count=100,
         bool subcolumn_reversed=false,
