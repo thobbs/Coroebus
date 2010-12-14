@@ -205,6 +205,35 @@ TEST(SuperColumnFamily, Multiget)
     cf->remove(key2);
 }
 
+TEST(SuperColumnFamily, GetSubcolumnCount)
+{
+    Connection * connection = new Connection("Keyspace1", "localhost:9160");
+    SuperColumnFamily * cf = new SuperColumnFamily(connection, "Super1");
+    string key = "SuperColumnFamily.GetSubcolumnCount";
+
+    map<string, map<string, string> > supercolumns;
+    map<string, string> subcolumns;
+    subcolumns["1"] = "val1";
+    subcolumns["2"] = "val2";
+    subcolumns["3"] = "val3";
+    supercolumns["super"] = subcolumns;
+    cf->insert(key, supercolumns);
+
+    // count the whole supercolumn at once
+    ASSERT_EQ(cf->get_subcolumn_count(key, "super"), 3);
+
+    // specify a set of column names
+    vector<string> names;
+    names.push_back("1");
+    names.push_back("2");
+    ASSERT_EQ(cf->get_subcolumn_count(key, "super", names), 2);
+
+    // do a slice
+    ASSERT_EQ(cf->get_subcolumn_count(key, "super", "1", "2"), 2);
+
+    // cleanup
+    cf->remove(key);
+}
 
 TEST(SuperColumnFamily, Remove)
 {

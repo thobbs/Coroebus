@@ -117,7 +117,6 @@ public:
         const std::vector<std::string> &subcolumns,
         CL cl = ONE);
 
-/*
     virtual int32_t get_subcolumn_count(const std::string &key, const std::string &supercolumn,
         CL cl = ONE);
 
@@ -131,6 +130,7 @@ public:
         const std::string &subcolumn_finish="",
         CL cl = ONE);
 
+/*
     virtual std::map<std::string, int32_t> multiget_subcolumn_count(
         const std::vector<std::string> &keys,
         const std::string &supercolumn,
