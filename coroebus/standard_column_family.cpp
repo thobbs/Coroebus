@@ -22,6 +22,23 @@ StandardColumnFamily::StandardColumnFamily(Connection *connection, const std::st
 
 StandardColumnFamily::~StandardColumnFamily() {}
 
+void StandardColumnFamily::insert(const string &key, const string &column, const string &value,
+                                  int64_t timestamp, int32_t ttl, CL cl)
+{
+    ColumnParent *cp = new ColumnParent();
+    cp->column_family = _column_family;
+
+    if (timestamp == -1)
+        timestamp = get_time();
+
+    Column *col = new Column();
+    col->name = column;
+    col->value = value;
+    col->timestamp = timestamp;
+    col->ttl = ttl;
+    _client->insert(key, *cp, *col, cl);
+}
+
 void StandardColumnFamily::insert(const string &key, const map<string, string> &columns,
                           int64_t timestamp, int32_t ttl, CL cl)
 {
@@ -31,45 +48,32 @@ void StandardColumnFamily::insert(const string &key, const map<string, string> &
     if (timestamp == -1)
         timestamp = get_time();
 
-    if (columns.size() == 1)
+    Column *temp_col = new Column();
+    ColumnOrSuperColumn *temp_cosc = new ColumnOrSuperColumn();
+    Mutation *temp_mut = new Mutation();
+    vector<Mutation> mut_list;
+    for(map<string, string>::const_iterator it = columns.begin(); it != columns.end(); ++it)
     {
-        map<string, string>::const_iterator it = columns.begin();
-        Column *column = new Column();
-        column->name = (*it).first;
-        column->value = (*it).second;
-        column->timestamp = timestamp;
-        column->ttl = ttl;
-        _client->insert(key, *cp, *column, cl);
+        temp_col->name = (*it).first;
+        temp_col->value = (*it).second;
+        temp_col->timestamp = timestamp;
+        temp_col->ttl = ttl;
+
+        temp_cosc->column = *temp_col;
+        temp_cosc->__isset.column = true;
+
+        temp_mut->column_or_supercolumn = *temp_cosc;
+        temp_mut->__isset.column_or_supercolumn = true;
+
+        mut_list.push_back(*temp_mut);
     }
-    else
-    {
-        Column *temp_col = new Column();
-        ColumnOrSuperColumn *temp_cosc = new ColumnOrSuperColumn();
-        Mutation *temp_mut = new Mutation();
-        vector<Mutation> mut_list;
-        for(map<string, string>::const_iterator it = columns.begin(); it != columns.end(); ++it)
-        {
-            temp_col->name = (*it).first;
-            temp_col->value = (*it).second;
-            temp_col->timestamp = timestamp;
-            temp_col->ttl = ttl;
+    map<string, vector<Mutation> > innerMutMap;
+    innerMutMap[_column_family] = mut_list;
 
-            temp_cosc->column = *temp_col;
-            temp_cosc->__isset.column = true;
+    map<string, map<string, vector<Mutation> > > mutationMap;
+    mutationMap[key] = innerMutMap;
 
-            temp_mut->column_or_supercolumn = *temp_cosc;
-            temp_mut->__isset.column_or_supercolumn = true;
-
-            mut_list.push_back(*temp_mut);
-        }
-        map<string, vector<Mutation> > innerMutMap;
-        innerMutMap[_column_family] = mut_list;
-
-        map<string, map<string, vector<Mutation> > > mutationMap;
-        mutationMap[key] = innerMutMap;
-
-        _client->batch_mutate(mutationMap, cl);
-    }
+    _client->batch_mutate(mutationMap, cl);
 }
 
 map<string, string>

@@ -29,6 +29,22 @@ TEST(StandardColumnFamily, TestEmpty)
     ASSERT_EQ(results[key].size(), 0);
 }
 
+TEST(StandardColumnFamily, Insert)
+{
+    Connection * connection = new Connection("Keyspace1", "localhost:9160");
+    StandardColumnFamily * cf = new StandardColumnFamily(connection, "Standard1");
+
+    string key = "StandardColumnFamily.TestInsert";
+    cf->insert(key, "col", "val");
+
+    map<string, string> expected;
+    expected["col"] = "val";
+    ASSERT_TRUE(cf->get(key) == expected);
+
+    // cleanup
+    cf->remove(key);
+}
+
 TEST(StandardColumnFamily, Get)
 {
     Connection * connection = new Connection("Keyspace1", "localhost:9160");

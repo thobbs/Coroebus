@@ -23,6 +23,10 @@ public:
 
     virtual ~StandardColumnFamily();
 
+    virtual void insert(const std::string &key, const std::string &column,
+                        const std::string &value, int64_t timestamp=-1, int32_t ttl=0,
+                        CL cl = ONE);
+
     virtual void insert(const std::string &key, const Subcols &columns,
                         int64_t timestamp=-1, int32_t ttl=0, CL cl = ONE);
 
