@@ -110,9 +110,7 @@ SuperColumnFamily::get(const string &key, int32_t supercolumn_count, Consistency
 map<string, map<string, string> >
 SuperColumnFamily::get(const string &key, const vector<string> &supercolumns, ConsistencyLevel::type cl)
 {
-    SlicePredicate *sp = new SlicePredicate();
-    sp->column_names = supercolumns;
-    sp->__isset.column_names = true;
+    SlicePredicate *sp = make_slice_predicate(supercolumns);
     return get(key, sp, cl);
 }
 
@@ -162,9 +160,7 @@ map<string, string>
 SuperColumnFamily::get_supercolumn(const string &key, const string &supercolumn,
                               const vector<string> &subcolumns, CL cl)
 {
-    SlicePredicate *sp = new SlicePredicate();
-    sp->column_names = subcolumns;
-    sp->__isset.column_names = true;
+    SlicePredicate *sp = make_slice_predicate(subcolumns);
     return get_supercolumn(key, supercolumn, sp, cl);
 }
 
@@ -216,9 +212,7 @@ map<string, map<string, map<string, string> > >
 SuperColumnFamily::multiget(const vector<string> &keys, const vector<string> &columns,
                        ConsistencyLevel::type cl)
 {
-    SlicePredicate *sp = new SlicePredicate();
-    sp->column_names = columns;
-    sp->__isset.column_names = true;
+    SlicePredicate *sp = make_slice_predicate(columns);
     return multiget(keys, sp, cl);
 }
 
@@ -293,9 +287,7 @@ map<string, map<string, string> >
 SuperColumnFamily::multiget_supercolumn(const vector<string> &keys,
         const string &supercolumn, const vector<string> &subcolumns, CL cl)
 {
-    SlicePredicate *sp = new SlicePredicate();
-    sp->column_names = subcolumns;
-    sp->__isset.column_names = true;
+    SlicePredicate *sp = make_slice_predicate(subcolumns);
     return multiget_supercolumn(keys, supercolumn, sp, cl);
 }
 
@@ -333,17 +325,6 @@ SuperColumnFamily::multiget_supercolumn(const vector<string> &keys,
 
 /* end multiget_supercolumn */
 
-SlicePredicate * 
-SuperColumnFamily::make_slice_predicate(const string &start, const string &finish,
-                                        int32_t count, bool reversed)
-{
-    SlicePredicate *sp = new SlicePredicate();
-    SliceRange *sr = make_slice_range(start, finish, count, reversed);
-    sp->slice_range = *sr;
-    sp->__isset.slice_range = true;
-    return sp;
-}
-
 int32_t SuperColumnFamily::get_subcolumn_count(const string &key, const string &supercolumn,
                                                CL cl)
 {
@@ -357,9 +338,7 @@ int32_t SuperColumnFamily::get_subcolumn_count(const string &key, const string &
     cp->column_family = _column_family;
     cp->super_column = supercolumn;
     cp->__isset.super_column = true;
-    SlicePredicate *sp = new SlicePredicate();
-    sp->column_names = subcolumns;
-    sp->__isset.column_names = true;
+    SlicePredicate *sp = make_slice_predicate(subcolumns);
     return _client->get_count(key, *cp, *sp, cl);
 }
 
@@ -389,9 +368,7 @@ SuperColumnFamily::multiget_subcolumn_count(const vector<string> &keys, const st
     cp->column_family = _column_family;
     cp->super_column = supercolumn;
     cp->__isset.super_column = true;
-    SlicePredicate *sp = new SlicePredicate();
-    sp->column_names = subcolumns;
-    sp->__isset.column_names = true;
+    SlicePredicate *sp = make_slice_predicate(subcolumns);
     map<string, int32_t> results;
     _client->multiget_count(results, keys, *cp, *sp, cl);
     return results;
@@ -446,9 +423,7 @@ void SuperColumnFamily::remove(const string &key, const vector<string> &supercol
 {
     Deletion * deletion = new Deletion();
     if (!supercolumns.empty()) {
-        SlicePredicate *sp = new SlicePredicate();
-        sp->column_names = supercolumns;
-        sp->__isset.column_names = true;
+        SlicePredicate *sp = make_slice_predicate(supercolumns);
         deletion->predicate = *sp;
         deletion->__isset.predicate = true;
     }
@@ -461,9 +436,7 @@ void SuperColumnFamily::remove(const string &key, const string &supercolumn,
 {
     Deletion * deletion = new Deletion();
     if (!subcolumns.empty()) {
-        SlicePredicate *sp = new SlicePredicate();
-        sp->column_names = subcolumns;
-        sp->__isset.column_names = true;
+        SlicePredicate *sp = make_slice_predicate(subcolumns);
         deletion->predicate = *sp;
         deletion->__isset.predicate = true;
     }

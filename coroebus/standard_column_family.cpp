@@ -81,9 +81,7 @@ StandardColumnFamily::get(const string &key, int32_t column_count, CL cl)
 map<string, string>
 StandardColumnFamily::get(const string &key, const vector<string> &columns, CL cl)
 {
-    SlicePredicate *sp = new SlicePredicate();
-    sp->column_names = columns;
-    sp->__isset.column_names = true;
+    SlicePredicate *sp = make_slice_predicate(columns);
     return get(key, sp, cl);
 }
 
@@ -91,10 +89,7 @@ map<string, string>
 StandardColumnFamily::get(const string &key, const string &column_start, const string &column_finish,
                   int32_t column_count, bool column_reversed, CL cl)
 {
-    SlicePredicate *sp = new SlicePredicate();
-    SliceRange *sr = make_slice_range(column_start, column_finish, column_count, column_reversed);
-    sp->slice_range = *sr;
-    sp->__isset.slice_range = true;
+    SlicePredicate *sp = make_slice_predicate(column_start, column_finish, column_count, column_reversed);
     return get(key, sp, cl);
 }
 
@@ -125,9 +120,7 @@ StandardColumnFamily::multiget(const vector<string> &keys, int32_t column_count,
 map<string, map<string, string> >
 StandardColumnFamily::multiget(const vector<string> &keys, const vector<string> &columns, CL cl)
 {
-    SlicePredicate *sp = new SlicePredicate();
-    sp->column_names = columns;
-    sp->__isset.column_names = true;
+    SlicePredicate *sp = make_slice_predicate(columns);
     return multiget(keys, sp, cl);
 }
 
@@ -136,11 +129,7 @@ StandardColumnFamily::multiget(const vector<string> &keys,
                        const string &column_start, const string &column_finish,
                        int32_t column_count, bool column_reversed, CL cl)
 {
-
-    SlicePredicate *sp = new SlicePredicate();
-    SliceRange *sr = make_slice_range(column_start, column_finish, column_count, column_reversed);
-    sp->slice_range = *sr;
-    sp->__isset.slice_range = true;
+    SlicePredicate *sp = make_slice_predicate(column_start, column_finish, column_count, column_reversed);
     return multiget(keys, sp, cl);
 }
 
@@ -179,9 +168,7 @@ void StandardColumnFamily::remove(const string &key, const vector<string> &colum
 {
     Deletion * deletion = new Deletion();
     if (!columns.empty()) {
-        SlicePredicate *sp = new SlicePredicate();
-        sp->column_names = columns;
-        sp->__isset.column_names = true;
+        SlicePredicate *sp = make_slice_predicate(columns);
         deletion->predicate = *sp;
         deletion->__isset.predicate = true;
     }

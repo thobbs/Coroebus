@@ -43,6 +43,26 @@ SliceRange* ColumnFamily::make_slice_range(const string &column_start, const str
     return sr;
 }
 
+SlicePredicate * 
+ColumnFamily::make_slice_predicate(const string &start, const string &finish,
+                                        int32_t count, bool reversed)
+{
+    SlicePredicate *sp = new SlicePredicate();
+    SliceRange *sr = make_slice_range(start, finish, count, reversed);
+    sp->slice_range = *sr;
+    sp->__isset.slice_range = true;
+    return sp;
+}
+
+SlicePredicate *
+ColumnFamily::make_slice_predicate(const vector<string> &columns)
+{
+    SlicePredicate *sp = new SlicePredicate();
+    sp->column_names = columns;
+    sp->__isset.column_names = true;
+    return sp;
+}
+
 int32_t ColumnFamily::get_count(const string &key, CL cl)
 {
     return get_count(key, "", "", cl);

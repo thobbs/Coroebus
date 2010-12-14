@@ -179,10 +179,6 @@ private:
 
     virtual SubcolRows multiget_supercolumn(const std::vector<std::string> &keys,
         const std::string &supercolumn, org::apache::cassandra::SlicePredicate * sp, CL);
-
-    virtual org::apache::cassandra::SlicePredicate * make_slice_predicate(
-              const std::string &start, const std::string &finish,
-              int32_t count, bool reversed);
 };
 
 } /* end namespace coroebus */

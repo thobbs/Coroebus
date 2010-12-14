@@ -56,6 +56,13 @@ protected:
               const std::string &column_start="", const std::string &column_finish="",
               int32_t column_count=100, bool column_reversed=false);
 
+    virtual org::apache::cassandra::SlicePredicate * make_slice_predicate(
+              const std::string &start, const std::string &finish,
+              int32_t count, bool reversed);
+
+    virtual org::apache::cassandra::SlicePredicate * make_slice_predicate(
+              const std::vector<std::string> &columns);
+
     virtual int32_t get_count(
         const std::string &key, org::apache::cassandra::SlicePredicate * sp, CL);
 
